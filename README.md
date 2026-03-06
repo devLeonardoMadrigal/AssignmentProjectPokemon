@@ -1,8 +1,3 @@
-# American Airlines - Sr. Android Developer Interview
-
-Welcome! This coding interview is designed for Senior Android Developers to be able to demonstrate their skills and proficiencies working with an existing Android project.
-
----
 
 ## Project: Pokédex
 
