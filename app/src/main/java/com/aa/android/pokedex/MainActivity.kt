@@ -124,3 +124,30 @@ fun DefaultPreview() {
         Screen(MutableLiveData(UiState.Ready(listOf("one", "two", "three"))))
     }
 }
+
+@Composable
+fun PokemonDetailScreen(
+    pokemonDetailsLiveData : LiveData<UiState<PokemonDTO>>
+) {
+    val uiState by pokemonDetailsLiveData.observeAsState(UiState.Loading())
+
+    uiState?.let {
+        when(it) {
+            is UiState.Error ->  {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    textAlign = TextAlign.Center,
+                    text = "Error loading Pokemon. Please try again later.",
+                    color = MaterialTheme.colors.onBackground
+                )
+            }
+            is UiState.Loading -> CircularProgressIndicator()
+            is UiState.Ready -> {
+                Text(it.data.name)
+
+            }
+        }
+    }
+}
