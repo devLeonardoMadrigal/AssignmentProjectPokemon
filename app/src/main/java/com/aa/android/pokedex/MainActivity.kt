@@ -22,31 +22,58 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.aa.android.pokedex.api.entity.PokemonDTO
 import com.aa.android.pokedex.model.UiState
 import com.aa.android.pokedex.ui.theme.PokedexTheme
 import com.aa.android.pokedex.viewmodel.MainViewModel
+import com.aa.android.pokedex.viewmodel.PokemonDetailViewModel
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.getValue
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val mainViewModel: MainViewModel by viewModels()
+    private val detailViewModel: PokemonDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             PokedexTheme {
-                Screen(mainViewModel.pokemonLiveData)
+
+                val navController = rememberNavController()
+
+                NavHost(navController = navController, startDestination = "HomeScreen"){
+
+                    composable("HomeScreen") {
+                        Screen(
+                            pokemon = mainViewModel.pokemonLiveData,
+                            onPokemonClick = { pokemonName ->
+                                detailViewModel.fetchPokemon(pokemonName)
+                                navController.navigate("PokemonDetails")
+                            }
+                        )
+                    }
+                    composable("PokemonDetails") {
+                        PokemonDetailScreen(
+                            pokemonDetailsLiveData = detailViewModel.pokemonDetail
+                        )
+                    }
+
+                }
             }
         }
     }
 }
 
 @Composable
-fun Screen(pokemon: LiveData<UiState<List<String>>>) {
+fun Screen(pokemon: LiveData<UiState<List<String>>>, onPokemonClick: (String) -> Unit = {}) {
     Scaffold(topBar = {
         TopAppBar(backgroundColor = MaterialTheme.colors.primary, title = {
             Image(painter = painterResource(id = R.drawable.pokemon_logo), null)
@@ -58,13 +85,13 @@ fun Screen(pokemon: LiveData<UiState<List<String>>>) {
                 .padding(it),
             color = MaterialTheme.colors.background
         ) {
-            PokemonList(pokemon = pokemon)
+            PokemonList(pokemon = pokemon, onPokemonClick = onPokemonClick)
         }
     }
 }
 
 @Composable
-fun PokemonList(pokemon: LiveData<UiState<List<String>>>) {
+fun PokemonList(pokemon: LiveData<UiState<List<String>>>, onPokemonClick: (String) -> Unit) {
     val uiState: UiState<List<String>>? by pokemon.observeAsState()
     LazyColumn(modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -79,7 +106,7 @@ fun PokemonList(pokemon: LiveData<UiState<List<String>>>) {
                 }
                 is UiState.Ready -> {
                     items(it.data) { pkmn ->
-                        PokemonItem(pokemon = pkmn, isLoading = false)
+                        PokemonItem(pokemon = pkmn, isLoading = false, onPokemonClick = { onPokemonClick(pkmn) })
                     }
                 }
                 is UiState.Error -> {
@@ -99,7 +126,7 @@ fun PokemonList(pokemon: LiveData<UiState<List<String>>>) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PokemonItem(pokemon: String, isLoading: Boolean) {
+fun PokemonItem(pokemon: String, isLoading: Boolean, onPokemonClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -110,9 +137,8 @@ fun PokemonItem(pokemon: String, isLoading: Boolean) {
                 shape = RoundedCornerShape(8.dp)
             ),
         shape = RoundedCornerShape(8.dp),
-        onClick = {
-            // TODO: Navigate to detail screen, need to make one
-        }) {
+        onClick = onPokemonClick
+    ) {
         Text(text = pokemon.capitalize(Locale.current), modifier = Modifier.padding(12.dp), textAlign = TextAlign.Center)
     }
 }
