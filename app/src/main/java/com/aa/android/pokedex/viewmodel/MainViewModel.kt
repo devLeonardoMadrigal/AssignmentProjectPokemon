@@ -10,9 +10,9 @@ import retrofit2.Retrofit
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(retrofit: Retrofit): ViewModel() {
-
-    val repository = PokemonRepository(retrofit)
+class MainViewModel @Inject constructor(
+    private val repository: PokemonRepository
+): ViewModel() {
 
     val pokemonLiveData: LiveData<UiState<List<String>>> = liveData(Dispatchers.IO) {
         emit(UiState.Loading())
