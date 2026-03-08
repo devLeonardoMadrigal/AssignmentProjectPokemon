@@ -96,7 +96,6 @@ fun Screen(pokemon: LiveData<UiState<List<String>>>, onPokemonClick: (String) ->
                 .padding(it),
             color = MaterialTheme.colors.background
         ) {
-            //Text(pokemon) //TODO
             PokemonList(pokemon = pokemon, onPokemonClick = onPokemonClick)
         }
     }
