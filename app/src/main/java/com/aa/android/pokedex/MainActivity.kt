@@ -96,6 +96,7 @@ fun Screen(pokemon: LiveData<UiState<List<String>>>, onPokemonClick: (String) ->
                 .padding(it),
             color = MaterialTheme.colors.background
         ) {
+            //Text(pokemon) //TODO
             PokemonList(pokemon = pokemon, onPokemonClick = onPokemonClick)
         }
     }
@@ -116,6 +117,19 @@ fun PokemonList(pokemon: LiveData<UiState<List<String>>>, onPokemonClick: (Strin
                     }
                 }
                 is UiState.Ready -> {
+                    item {
+                        Row(modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Total Pokemon fetched: ${it.data.size}",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+
+                    }
+
                     items(it.data) { pkmn ->
                         PokemonItem(pokemon = pkmn, isLoading = false, onPokemonClick = { onPokemonClick(pkmn) })
                     }
