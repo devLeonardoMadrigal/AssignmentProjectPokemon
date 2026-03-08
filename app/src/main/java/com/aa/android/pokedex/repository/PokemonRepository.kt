@@ -9,9 +9,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Inject
 
-class PokemonRepository @Inject constructor(retrofit: Retrofit) {
-
-    private val api: PokemonApi = retrofit.create(PokemonApi::class.java)
+class PokemonRepository @Inject constructor(
+    private val api: PokemonApi
+) {
 
     suspend fun getAllPokemon(): List<String> {
         val response = api.getAllPokemon()
